@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" monitorInterval="30">
+	<Properties>
+		<Property name="log-path">/app/@project.artifactId@/</Property>
+		<Property name="LOG_PATTERN">
+			%d %-5p[${sys:PID}][%tid] (%F:%L): %m%n
+		</Property>
+		<Property name="service-name">@project.artifactId@</Property>
+		<Property name="package-name">@project.groupId@</Property>
+	</Properties>
+	<Appenders>
+		<Console name="Console-Appender" target="SYSTEM_OUT">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+		</Console>
+		
+		<Gelf name="logstash-${service-name}" host="tcp:192.168.99.100" port="4560" version="1.1">
+            <Field name="timestamp" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}" />
+            <Field name="logger" pattern="%logger" />
+            <Field name="level" pattern="%level" />
+            <Field name="className" pattern="%C" />
+            <Field name="method" pattern="%M" />
+            <Field name="line" pattern="%L" />
+            <Field name="server" pattern="%host" />
+        </Gelf>
+
+		<RollingFile name="${service-name}"
+			fileName="${log-path}/${service-name}.log"
+			filePattern="${log-path}/${service-name}_%d{yyyy-MM-dd}-%i.log.gz"
+			ignoreExceptions="false">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="10MB" />
+				<TimeBasedTriggeringPolicy />
+			</Policies>
+			<DefaultRolloverStrategy max="20">
+				<Delete basePath="${log-path}/" maxDepth="1">
+	          		<IfFileName glob="${service-name}_*" />
+	          		<IfLastModified age="90d" />
+	        	</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+		<Async name="Async">
+			<AppenderRef ref="${service-name}" />
+			<AppenderRef ref="logstash-${service-name}" />
+		</Async>
+	</Appenders>
+
+	<Loggers>
+
+		<Logger name="${package-name}" level="INFO"/>
+		<Logger name="org.springframework" level="WARN" />
+		<Root level="info">
+			<AppenderRef ref="Console-Appender" />
+			<AppenderRef ref="${service-name}" />
+			<AppenderRef ref="logstash-${service-name}" />
+		</Root>
+	</Loggers>
+</Configuration>
