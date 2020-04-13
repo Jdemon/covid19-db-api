@@ -10,6 +10,7 @@ import org.springframework.util.StreamUtils;
  
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.StringJoiner;
  
 public class RequestResponseLoggingInterceptor implements ClientHttpRequestInterceptor {
  
@@ -24,25 +25,21 @@ public class RequestResponseLoggingInterceptor implements ClientHttpRequestInter
         return response;
     }
  
-    private void logRequest(HttpRequest request, byte[] body) throws IOException {
-        if (log.isInfoEnabled()) {
-            log.info("===========================request begin================================================");
-            log.info("URI         : {}", request.getURI());
-            log.info("Method      : {}", request.getMethod());
-            log.info("Headers     : {}", request.getHeaders());
-            log.info("Request body: {}", new String(body, "UTF-8"));
-            log.info("==========================request end================================================");
-        }
-    }
+	private void logRequest(HttpRequest request, byte[] body) throws IOException {
+		StringJoiner joiner = new StringJoiner(",");
+		joiner.add(request.getURI().toString());
+		joiner.add(request.getMethod().toString());
+		joiner.add(request.getHeaders().toString());
+		joiner.add((new String(body, "UTF-8")));
+		log.info(joiner.toString());
+	}
  
     private void logResponse(ClientHttpResponse response) throws IOException {
-        if (log.isInfoEnabled()) {
-            log.debug("============================response begin==========================================");
-            log.debug("Status code  : {}", response.getStatusCode());
-            log.debug("Status text  : {}", response.getStatusText());
-            log.debug("Headers      : {}", response.getHeaders());
-            log.debug("Response body: {}", StreamUtils.copyToString(response.getBody(), Charset.defaultCharset()));
-            log.debug("=======================response end=================================================");
-        }
+    	
+    	StringJoiner joiner = new StringJoiner(",");
+		joiner.add(response.getStatusText().toString());
+		joiner.add(response.getHeaders().toString());
+		joiner.add(StreamUtils.copyToString(response.getBody(), Charset.defaultCharset()).toString());
+		log.info(joiner.toString());
     }
 }

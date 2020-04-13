@@ -12,16 +12,20 @@
 		<Console name="Console-Appender" target="SYSTEM_OUT">
 			<PatternLayout pattern="${LOG_PATTERN}" />
 		</Console>
-		
-		<Gelf name="logstash-${service-name}" host="tcp:192.168.99.100" port="4560" version="1.1">
-            <Field name="timestamp" pattern="%d{yyyy-MM-dd HH:mm:ss.SSS}" />
-            <Field name="logger" pattern="%logger" />
-            <Field name="level" pattern="%level" />
-            <Field name="className" pattern="%C" />
-            <Field name="method" pattern="%M" />
-            <Field name="line" pattern="%L" />
-            <Field name="server" pattern="%host" />
-        </Gelf>
+
+		<Gelf name="logstash-${service-name}" host="tcp:192.168.99.100"
+			port="4560" version="1.1" extractStackTrace="true"
+			filterStackTrace="true" mdcProfiling="true" includeFullMdc="true"
+			maximumMessageSize="8192" originHost="%host" ignoreExceptions="true">
+			<Field name="timestamp" pattern="%d{dd MMM yyyy HH:mm:ss,SSS}" />
+			<Field name="threadId" pattern="%tid" />
+			<Field name="line" pattern="%L" />
+			<Field name="level" pattern="%level" />
+			<Field name="className" pattern="%C" />
+			<Field name="simpleClassName" pattern="%C{1}" />
+			<Field name="server" pattern="%host" />
+			<Field name="application" literal="${service-name}" />
+		</Gelf>
 
 		<RollingFile name="${service-name}"
 			fileName="${log-path}/${service-name}.log"
@@ -34,9 +38,9 @@
 			</Policies>
 			<DefaultRolloverStrategy max="20">
 				<Delete basePath="${log-path}/" maxDepth="1">
-	          		<IfFileName glob="${service-name}_*" />
-	          		<IfLastModified age="90d" />
-	        	</Delete>
+					<IfFileName glob="${service-name}_*" />
+					<IfLastModified age="90d" />
+				</Delete>
 			</DefaultRolloverStrategy>
 		</RollingFile>
 		<Async name="Async">
@@ -47,7 +51,7 @@
 
 	<Loggers>
 
-		<Logger name="${package-name}" level="INFO"/>
+		<Logger name="${package-name}" level="INFO" />
 		<Logger name="org.springframework" level="WARN" />
 		<Root level="info">
 			<AppenderRef ref="Console-Appender" />

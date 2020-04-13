@@ -89,8 +89,6 @@ public class SummaryServiceImpl implements ISummaryService{
 			list.add(graph);
 		}
 		
-		log.info("end getGraph()");
-		
 		return list;
 	}
 	
@@ -107,7 +105,6 @@ public class SummaryServiceImpl implements ISummaryService{
 	
 	@Override
 	public List<SummaryListData> getSummary() {
-		
 		log.info("start getSummary()");
 		
 		List<SummaryListData> list = new ArrayList<>();
@@ -172,8 +169,6 @@ public class SummaryServiceImpl implements ISummaryService{
 			
 		}
 		
-		log.info("end getSummary()");
-		
 		return list;
 		
 	}
@@ -193,7 +188,6 @@ public class SummaryServiceImpl implements ISummaryService{
 
 	@Override
 	public SummaryPieList getCasesSum() {
-		
 		log.info("start getCasesSum()");
 		SummaryCasesSum summaryCasesSum = restUtil.exchange(urlCasesSum, HttpMethod.GET, SummaryCasesSum.class).getBody();
 		SummaryPieList summaryPieList = new SummaryPieList();
@@ -204,7 +198,6 @@ public class SummaryServiceImpl implements ISummaryService{
 		summaryPieList.setGender(listGender);
 		summaryPieList.setProvince(listProvince);
 		summaryPieList.setNation(listNation);
-		log.info("end getCasesSum()");
 		return summaryPieList;
 	}
 
