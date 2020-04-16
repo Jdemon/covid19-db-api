@@ -19,44 +19,34 @@
 			maximumMessageSize="8192" originHost="%host" ignoreExceptions="true">
 			<Field name="timestamp" pattern="%d{dd MMM yyyy HH:mm:ss,SSS}" />
 			<Field name="threadId" pattern="%tid" />
-			<Field name="line" pattern="%L" />
+			<Field name="Log" pattern="%F:%L" />
 			<Field name="level" pattern="%level" />
 			<Field name="className" pattern="%C" />
-			<Field name="simpleClassName" pattern="%C{1}" />
+			<Field name="traceId" pattern="%X{X-B3-TraceId}" />
 			<Field name="server" pattern="%host" />
 			<Field name="application" literal="${service-name}" />
 		</Gelf>
 
-		<RollingFile name="${service-name}"
-			fileName="${log-path}/${service-name}.log"
-			filePattern="${log-path}/${service-name}_%d{yyyy-MM-dd}-%i.log.gz"
-			ignoreExceptions="false">
-			<PatternLayout pattern="${LOG_PATTERN}" />
-			<Policies>
-				<SizeBasedTriggeringPolicy size="10MB" />
-				<TimeBasedTriggeringPolicy />
-			</Policies>
-			<DefaultRolloverStrategy max="20">
-				<Delete basePath="${log-path}/" maxDepth="1">
-					<IfFileName glob="${service-name}_*" />
-					<IfLastModified age="90d" />
-				</Delete>
-			</DefaultRolloverStrategy>
-		</RollingFile>
 		<Async name="Async">
-			<AppenderRef ref="${service-name}" />
 			<AppenderRef ref="logstash-${service-name}" />
 		</Async>
 	</Appenders>
 
 	<Loggers>
-
-		<Logger name="${package-name}" level="INFO" />
-		<Logger name="org.springframework" level="WARN" />
+		<Logger name="application_log" level="DEBUG">
+			<AppenderRef ref="logstash-${service-name}" />
+		</Logger>
+		<Logger name="service_log" level="INFO">
+			<AppenderRef ref="logstash-${service-name}" />
+		</Logger>
+		<Logger name="txn_log" level="INFO">
+			<AppenderRef ref="logstash-${service-name}" />
+		</Logger>
+		<Logger name="org.springframework" level="WARN">
+			<AppenderRef ref="Console-Appender" />
+		</Logger>
 		<Root level="info">
 			<AppenderRef ref="Console-Appender" />
-			<AppenderRef ref="${service-name}" />
-			<AppenderRef ref="logstash-${service-name}" />
 		</Root>
 	</Loggers>
 </Configuration>

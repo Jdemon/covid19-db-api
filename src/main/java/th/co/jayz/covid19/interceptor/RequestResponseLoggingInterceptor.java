@@ -15,31 +15,37 @@ import java.util.StringJoiner;
 public class RequestResponseLoggingInterceptor implements ClientHttpRequestInterceptor {
  
     
-	private static final Logger log = LoggerFactory.getLogger(RequestResponseLoggingInterceptor.class);
+	private static final Logger log = LoggerFactory.getLogger("service_log");
  
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        logRequest(request, body);
+    	long ptime = System.currentTimeMillis();
+    	StringJoiner joiner = logRequest(request, body);
         ClientHttpResponse response = execution.execute(request, body);
-        logResponse(response);
+        logResponse(response,joiner);
+        ptime = System.currentTimeMillis() - ptime;
+        joiner.add("processTime="+ptime);
+        log.info(joiner.toString());
         return response;
     }
  
-	private void logRequest(HttpRequest request, byte[] body) throws IOException {
-		StringJoiner joiner = new StringJoiner(",");
-		joiner.add(request.getURI().toString());
-		joiner.add(request.getMethod().toString());
-		joiner.add(request.getHeaders().toString());
-		joiner.add((new String(body, "UTF-8")));
-		log.info(joiner.toString());
+	private StringJoiner logRequest(HttpRequest request, byte[] body) throws IOException {
+		StringJoiner joiner = new StringJoiner("|");
+		joiner.add("log_type=external_service");
+		joiner.add("uri="+request.getURI().toString());
+		joiner.add("method="+request.getMethod().toString());
+		//joiner.add("reqHeader="+request.getHeaders().toString());
+		if(request.getMethod().toString().equals("POST")) {
+			joiner.add("reqBody="+(new String(body, "UTF-8")));
+		}
+		return joiner;
 	}
  
-    private void logResponse(ClientHttpResponse response) throws IOException {
+    private void logResponse(ClientHttpResponse response,StringJoiner joiner) throws IOException {
     	
-    	StringJoiner joiner = new StringJoiner(",");
-		joiner.add(response.getStatusText().toString());
-		joiner.add(response.getHeaders().toString());
-		joiner.add(StreamUtils.copyToString(response.getBody(), Charset.defaultCharset()).toString());
-		log.info(joiner.toString());
+		joiner.add("statusCode="+response.getStatusCode().value());
+		joiner.add("statusText="+response.getStatusText().toString());
+		//joiner.add("reqHeader="+response.getHeaders().toString());
+		joiner.add("respBody="+StreamUtils.copyToString(response.getBody(), Charset.defaultCharset()).toString());
     }
 }

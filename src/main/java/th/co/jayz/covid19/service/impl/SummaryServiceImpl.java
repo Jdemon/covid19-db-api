@@ -16,6 +16,7 @@ import th.co.jayz.covid19.http.entity.SummaryModel;
 import th.co.jayz.covid19.http.entity.TimelineSummaryResp;
 import th.co.jayz.covid19.service.ISummaryService;
 import th.co.jayz.covid19.util.ExceptionUtil;
+import th.co.jayz.covid19.util.LogUtil;
 import th.co.jayz.covid19.util.RestUtil;
 
 import java.text.DecimalFormat;
@@ -29,13 +30,9 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @Service
 public class SummaryServiceImpl implements ISummaryService{
-	
-	private static Logger log = LogManager.getLogger(SummaryServiceImpl.class);
 	
 	@Autowired
 	private RestUtil restUtil;
@@ -57,8 +54,7 @@ public class SummaryServiceImpl implements ISummaryService{
 	
 	@Override
 	public List<SummaryGraph> getGraph() {
-		
-		log.info("start getGraph()");
+		LogUtil.info("start getGraph()");
 		
 		List<SummaryGraph> list = new ArrayList<>();
 		
@@ -105,7 +101,7 @@ public class SummaryServiceImpl implements ISummaryService{
 	
 	@Override
 	public List<SummaryListData> getSummary() {
-		log.info("start getSummary()");
+		LogUtil.info("start getSummary()");
 		
 		List<SummaryListData> list = new ArrayList<>();
 		
@@ -114,7 +110,7 @@ public class SummaryServiceImpl implements ISummaryService{
             sumModelRespEnt =  restUtil.exchange(urlSummary, HttpMethod.GET);
             this.cacheTimeline = restUtil.exchange(urlTimeline, HttpMethod.GET, TimelineSummaryResp.class).getBody();
         }catch(Exception e) {
-			log.error(ExceptionUtil.getStackTrace(e));
+        	LogUtil.error(ExceptionUtil.getStackTrace(e));
 		}
 		List<SummaryModel> data = cacheTimeline.getData();
 		if(sumModelRespEnt.getStatusCode() == HttpStatus.OK) {
@@ -188,7 +184,7 @@ public class SummaryServiceImpl implements ISummaryService{
 
 	@Override
 	public SummaryPieList getCasesSum() {
-		log.info("start getCasesSum()");
+		LogUtil.info("start getCasesSum()");
 		SummaryCasesSum summaryCasesSum = restUtil.exchange(urlCasesSum, HttpMethod.GET, SummaryCasesSum.class).getBody();
 		SummaryPieList summaryPieList = new SummaryPieList();
 		summaryPieList.setLatestDate(summaryCasesSum.getLastData());

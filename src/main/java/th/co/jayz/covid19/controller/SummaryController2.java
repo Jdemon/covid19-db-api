@@ -17,23 +17,26 @@ import th.co.jayz.covid19.service.ISummaryService;;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/v2.0")
-public class SummaryController {
+@RequestMapping("/v1.0")
+public class SummaryController2 {
+	
+	@Autowired
+	private ISummaryService summaryService;
 	
 	
 	@GetMapping("/inf/sum")
 	public ResponseEntity<List<SummaryListData>> summary() {
-		return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
+		return new ResponseEntity<>(summaryService.getSummary(),HttpStatus.OK);
 	}
 	
 	@GetMapping("/inf/graph")
 	public ResponseEntity<List<SummaryGraph>> graph() {
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(summaryService.getGraph(),HttpStatus.OK);
 	}
 	
 	@GetMapping("/inf/cases/sum")
 	public  ResponseEntity<SummaryPieList> casessum() {
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(summaryService.getCasesSum(),HttpStatus.OK);
 	}
 
 }
