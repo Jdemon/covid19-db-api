@@ -18,7 +18,10 @@ import th.co.jayz.covid19.service.ISummaryService;;
 @CrossOrigin
 @RestController
 @RequestMapping("/v2.0")
-public class SummaryController {
+public class SummaryControllerV2 {
+	
+	@Autowired
+	private ISummaryService summaryService;
 	
 	
 	@GetMapping("/inf/sum")
@@ -28,6 +31,8 @@ public class SummaryController {
 	
 	@GetMapping("/inf/graph")
 	public ResponseEntity<List<SummaryGraph>> graph() {
+		summaryService.getSummary();
+		summaryService.getGraph();
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 	}
 	
